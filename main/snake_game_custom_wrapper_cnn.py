@@ -7,7 +7,7 @@ from snake_game import SnakeGame
 
 
 class SnakeEnv(gym.Env):
-    def __init__(self, seed=0, board_size=12, silent_mode=True, limit_step=True):
+    def __init__(self, seed=0, board_size=24, silent_mode=True, limit_step=True):
         super().__init__()
         self.game = SnakeGame(seed=seed, board_size=board_size, silent_mode=silent_mode)
         self.game.reset()
@@ -17,7 +17,10 @@ class SnakeEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(4)  # 0: UP, 1: LEFT, 2: RIGHT, 3: DOWN
 
         self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(84, 84, 3), dtype=np.uint8
+            low=0,
+            high=255,
+            shape=(self.game.board_size, self.game.board_size, 3),
+            dtype=np.uint8,
         )
 
         self.board_size = board_size
@@ -178,9 +181,6 @@ class SnakeEnv(gym.Env):
 
         # Set the food to red
         obs[self.game.food] = [0, 0, 255]
-
-        # Enlarge the observation to 84x84
-        obs = np.repeat(np.repeat(obs, 7, axis=0), 7, axis=1)
 
         return obs
 

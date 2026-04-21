@@ -11,7 +11,7 @@ from pygame import mixer
 
 
 class SnakeGame:
-    def __init__(self, seed=0, board_size=12, silent_mode=True):
+    def __init__(self, seed=0, board_size=24, silent_mode=True):
         self.board_size = board_size
         self.grid_size = self.board_size**2
         self.cell_size = 40
@@ -48,7 +48,7 @@ class SnakeGame:
         self.food = None
         self.bomb = None
         self.bomb_spawn_time = None
-        self.bomb_duration = 5.0
+        self.bomb_duration = 4.0
         self.bomb_spawn_chance = 0.08
         self.seed_value = seed
 
