@@ -38,7 +38,7 @@ def make_env(seed=0):
         env = SnakeEnv(seed=seed)
         env = ActionMasker(env, SnakeEnv.get_action_mask)
         env = Monitor(env)
-        env.seed(seed)
+        #env.seed(seed)
         return env
     return _init
 
