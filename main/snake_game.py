@@ -14,7 +14,7 @@ class SnakeGame:
     def __init__(self, seed=0, board_size=24, silent_mode=True):
         self.board_size = board_size
         self.grid_size = self.board_size**2
-        self.cell_size = 40
+        self.cell_size = 25
         self.width = self.height = self.board_size * self.cell_size
 
         self.border_size = 20

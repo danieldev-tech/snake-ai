@@ -19,7 +19,8 @@ class SnakeEnv(gym.Env):
         self.observation_space = gym.spaces.Box(
             low=0,
             high=255,
-            shape=(self.game.board_size, self.game.board_size, 3),
+            # shape=(self.game.board_size, self.game.board_size, 3),
+            shape=(3, 84, 84),  # TODO
             dtype=np.uint8,
         )
 
@@ -181,6 +182,15 @@ class SnakeEnv(gym.Env):
 
         # Set the food to red
         obs[self.game.food] = [0, 0, 255]
+
+        ### TODO
+        scale = 3
+        obs = np.kron(obs, np.ones((scale, scale, 1)))
+
+        pad = (84 - obs.shape[0]) // 2
+        obs = np.pad(obs, ((pad, pad), (pad, pad), (0, 0)), mode="constant")
+
+        obs = obs.transpose(2, 0, 1)
 
         return obs
 
