@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import time
 
 import numpy as np
 
@@ -45,6 +46,10 @@ class SnakeGame:
         self.direction = None
         self.score = 0
         self.food = None
+        self.bomb = None
+        self.bomb_spawn_time = None
+        self.bomb_duration = 5.0
+        self.bomb_spawn_chance = 0.08
         self.seed_value = seed
 
         random.seed(seed)  # Set random seed.
@@ -65,9 +70,12 @@ class SnakeGame:
         )  # Initialize the non-snake cells.
         self.direction = "DOWN"  # Snake starts downward in each round
         self.food = self._generate_food()
+        self.bomb = None
+        self.bomb_spawn_time = None
         self.score = 0
 
     def step(self, action):
+        self._update_bomb()
         self._update_direction(action)  # Update direction based on action.
 
         # Move snake based on current action.
@@ -98,6 +106,7 @@ class SnakeGame:
         # Check if snake collided with itself or the wall
         done = (
             (row, col) in self.snake
+            or (self.bomb is not None and (row, col) == self.bomb)
             or row < 0
             or row >= self.board_size
             or col < 0
@@ -124,6 +133,9 @@ class SnakeGame:
             "snake_head_pos": np.array(self.snake[0]),
             "prev_snake_head_pos": np.array(self.snake[1]),
             "food_pos": np.array(self.food),
+            "bomb_pos": np.array(self.bomb)
+            if self.bomb is not None
+            else np.array((-1, -1)),
             "food_obtained": food_obtained,
         }
 
@@ -147,12 +159,37 @@ class SnakeGame:
                 self.direction = "DOWN"
         # Swich Case is supported in Python 3.10+
 
-        if previous_direction != self.direction:
+        if (
+            not self.silent_mode
+            and previous_direction != self.direction
+            and hasattr(self, "sound_change_direction")
+        ):
             self.sound_change_direction.play()
 
+    def _update_bomb(self):
+        current_time = time.time()
+
+        if (
+            self.bomb is not None
+            and self.bomb_spawn_time is not None
+            and current_time - self.bomb_spawn_time >= self.bomb_duration
+        ):
+            self.bomb = None
+            self.bomb_spawn_time = None
+
+        if self.bomb is None and random.random() < self.bomb_spawn_chance:
+            bomb_candidates = self.non_snake - {self.food}
+            if bomb_candidates:
+                self.bomb = random.choice(list(bomb_candidates))
+                self.bomb_spawn_time = current_time
+
     def _generate_food(self):
-        if len(self.non_snake) > 0:
-            food = random.sample(self.non_snake, 1)[0]
+        available_cells = self.non_snake
+        if self.bomb is not None:
+            available_cells = self.non_snake - {self.bomb}
+
+        if len(available_cells) > 0:
+            food = random.sample(list(available_cells), 1)[0]
         else:  # If the snake occupies the entire board, no need to generate new food and just default to (0, 0).
             food = (0, 0)
         return food
@@ -276,6 +313,20 @@ class SnakeGame:
                 (
                     c * self.cell_size + self.border_size,
                     r * self.cell_size + self.border_size,
+                    self.cell_size,
+                    self.cell_size,
+                ),
+            )
+
+        # Draw bomb (temporary obstacle)
+        if self.bomb is not None:
+            bomb_r, bomb_c = self.bomb
+            pygame.draw.rect(
+                self.screen,
+                (255, 165, 0),
+                (
+                    bomb_c * self.cell_size + self.border_size,
+                    bomb_r * self.cell_size + self.border_size,
                     self.cell_size,
                     self.cell_size,
                 ),
