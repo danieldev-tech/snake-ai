@@ -42,6 +42,7 @@ class SnakeEnv(gym.Env):
     def reset(self, seed=None, options=None):
         if seed is not None:
             np.random.seed(seed)
+            random.seed(seed)
             
         self.game.reset()
         self.done = False
