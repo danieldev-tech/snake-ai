@@ -35,8 +35,12 @@ def linear_schedule(initial_value, final_value=0.0):
 
 def make_env(seed=0):
     def _init():
-        env = SnakeEnv(seed=seed)
-        env = ActionMasker(env, SnakeEnv.get_action_mask)
+        # env = SnakeEnv(seed=seed)
+        # env = ActionMasker(env, SnakeEnv.get_action_mask)
+        env = ActionMasker(
+            env,
+            lambda env: env.get_action_mask()
+        )
         env = Monitor(env)
         #env.seed(seed)
         return env
