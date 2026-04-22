@@ -4,7 +4,7 @@ import random
 
 import torch
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.vec_env import DummyVecEnv as SubprocVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.callbacks import CheckpointCallback
 
 from sb3_contrib import MaskablePPO
@@ -54,7 +54,7 @@ def main():
         seed_set.add(random.randint(0, int(1e9)))
 
     # Create the Snake environment.
-    env = SubprocVecEnv([make_env(seed=s) for s in seed_set])
+    env = DummyVecEnv([make_env(seed=s) for s in seed_set])
 
     if torch.backends.mps.is_available():
         lr_schedule = linear_schedule(5e-4, 2.5e-6)
