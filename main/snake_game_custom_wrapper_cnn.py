@@ -39,14 +39,16 @@ class SnakeEnv(gym.Env):
             self.step_limit = 1e9  # Basically no limit.
         self.reward_step_counter = 0
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
+        if seed is not None:
+            np.random.seed(seed)
+            
         self.game.reset()
-
         self.done = False
         self.reward_step_counter = 0
 
         obs = self._generate_observation()
-        return obs
+        return obs, {}
 
     def step(self, action):
         self.done, info = self.game.step(
